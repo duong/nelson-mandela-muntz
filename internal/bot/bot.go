@@ -28,6 +28,14 @@ func Init() {
 	channelID = os.Getenv("CHANNEL_ID")
 	guildID = os.Getenv("GUILD_ID")
 
+	if token == "" {
+		log.Fatal("no TOKEN provided")
+	} else if channelID == "" {
+		log.Fatal("no CHANNEL_ID provided")
+	} else if guildID == "" {
+		log.Fatal("no GUILD_ID provided")
+	}
+
 	run()
 }
 
@@ -42,18 +50,18 @@ func run() {
 
 	s.Identify.Intents = discordgo.IntentsGuildVoiceStates
 
-	// err = s.Open()
-	// if err != nil {
-	// 	log.Fatal("error opening connection: ", err)
-	// }
+	err = s.Open()
+	if err != nil {
+		log.Fatal("error opening connection: ", err)
+	}
 
-	// vc, err := s.ChannelVoiceJoin(guildID, channelID, false, false)
-	// log.Println(vc)
+	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, false)
+	log.Println(vc)
 
-	// if err != nil {
-	// 	log.Fatal("failed to join voice channel: ", err)
-	// }
+	if err != nil {
+		log.Fatal("failed to join voice channel: ", err)
+	}
 
-	// log.Println("joined voice")
+	log.Println("joined voice")
 
 }
