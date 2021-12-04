@@ -21,7 +21,7 @@ TOKEN=YOUR_TOKEN GUILD_ID=123123123 CHANNEL_ID=456456456 go run main.go
 
 Or to run a built binary:
 ```
-TOKEN=YOUR_TOKEN GUILD_ID=123123123 CHANNEL_ID=456456456 ./nelson-mandela-mantz
+TOKEN=YOUR_TOKEN GUILD_ID=123123123 CHANNEL_ID=456456456 ./nelson-mandela-muntz
 ```
 
 To run while in development with secrets dir:

@@ -1,20 +1,17 @@
+/*
+Package bot implements the main bot logic and loops.
+
+Listens for sound coming from other discord users and will respond with Nelson Muntz's signature "hah-hah"
+*/
 package bot
 
 import (
 	"log"
 	"os"
+	"os/signal"
 
 	"github.com/bwmarrin/discordgo"
 )
-
-// For detecting when other users are speaking:
-
-// g, err := session.State.Guild(guildID)
-// if err != nil {
-//   return err
-// }
-
-// g.VoiceStates // <- look at this
 
 // Variables used for environment variables
 var (
@@ -22,6 +19,9 @@ var (
 	channelID string
 	guildID   string
 )
+
+var session *discordgo.Session
+var voiceConnection *discordgo.VoiceConnection
 
 func Init() {
 	token = os.Getenv("TOKEN")
@@ -36,32 +36,57 @@ func Init() {
 		log.Fatal("no GUILD_ID provided")
 	}
 
-	run()
+	start()
 }
 
-func run() {
-	log.Println("hello bot")
+func start() {
+	log.Println("initialising bot...")
 
-	s, err := discordgo.New("Bot " + token)
+	var err error
+	session, err = discordgo.New("Bot " + token)
 
 	if err != nil {
 		log.Fatal("error creating Discord session: ", err)
 	}
 
-	s.Identify.Intents = discordgo.IntentsGuildVoiceStates
+	session.Identify.Intents = discordgo.IntentsGuildVoiceStates
 
-	err = s.Open()
+	err = session.Open()
 	if err != nil {
 		log.Fatal("error opening connection: ", err)
 	}
 
-	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, false)
-	log.Println(vc)
+	voiceConnection, err = session.ChannelVoiceJoin(guildID, channelID, false, false)
+	log.Println("created voice connection")
 
 	if err != nil {
 		log.Fatal("failed to join voice channel: ", err)
 	}
 
-	log.Println("joined voice")
+	// For detecting when other users are speaking:
+	log.Println("state enabled", session.StateEnabled)
+	voiceConnection.AddHandler(voiceSpeakingUpdateHandler)
 
+	// Keep the program running until it has signal interrupt
+	defer session.Close()
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, os.Interrupt)
+	<-sigs
+	log.Println("Gracefully shutdowning")
+}
+
+func voiceSpeakingUpdateHandler(vc *discordgo.VoiceConnection, vs *discordgo.VoiceSpeakingUpdate) {
+	log.Println("voice speaking handler")
+
+	guild, err := session.State.Guild(guildID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("%+v\n", vs)
+
+	for _, key := range guild.VoiceStates {
+		log.Printf("%+v\n", key)
+	}
+	voiceConnection.AddHandler(voiceSpeakingUpdateHandler)
 }
