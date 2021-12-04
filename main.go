@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/duong/nelson-mandela-mantz/cmd/bot"
+	"github.com/duong/nelson-mandela-muntz/cmd/bot"
 )
 
 func main() {

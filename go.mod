@@ -1,4 +1,4 @@
-module github.com/duong/nelson-mandela-mantz
+module github.com/duong/nelson-mandela-muntz
 
 go 1.17
 
