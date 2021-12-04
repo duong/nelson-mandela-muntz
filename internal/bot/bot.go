@@ -13,33 +13,10 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// Variables used for environment variables
-var (
-	token     string
-	channelID string
-	guildID   string
-)
-
 var session *discordgo.Session
 var voiceConnection *discordgo.VoiceConnection
 
-func Init() {
-	token = os.Getenv("TOKEN")
-	channelID = os.Getenv("CHANNEL_ID")
-	guildID = os.Getenv("GUILD_ID")
-
-	if token == "" {
-		log.Fatal("no TOKEN provided")
-	} else if channelID == "" {
-		log.Fatal("no CHANNEL_ID provided")
-	} else if guildID == "" {
-		log.Fatal("no GUILD_ID provided")
-	}
-
-	start()
-}
-
-func start() {
+func Start(token string, channelID string, guildID string) {
 	log.Println("initialising bot...")
 
 	var err error
@@ -78,15 +55,7 @@ func start() {
 func voiceSpeakingUpdateHandler(vc *discordgo.VoiceConnection, vs *discordgo.VoiceSpeakingUpdate) {
 	log.Println("voice speaking handler")
 
-	guild, err := session.State.Guild(guildID)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	log.Printf("%+v\n", vs)
 
-	for _, key := range guild.VoiceStates {
-		log.Printf("%+v\n", key)
-	}
 	voiceConnection.AddHandler(voiceSpeakingUpdateHandler)
 }
