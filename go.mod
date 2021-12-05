@@ -4,7 +4,11 @@ go 1.17
 
 require github.com/bwmarrin/discordgo v0.23.2
 
-require golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359 // indirect
+require (
+	github.com/bwmarrin/dgvoice v0.0.0-20210225172318-caaac756e02e // indirect
+	golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359 // indirect
+	layeh.com/gopus v0.0.0-20210501142526-1ee02d434e32 // indirect
+)
 
 require (
 	github.com/gorilla/websocket v1.4.0 // indirect

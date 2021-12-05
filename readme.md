@@ -6,6 +6,10 @@ Makes use of [discordgo](https://github.com/bwmarrin/discordgo) package
 
 Based off code from [voice_receive](https://github.com/bwmarrin/discordgo/tree/master/examples/voice_receive) example
 
+Idea inspired by [Donnie Thornberry Bot](https://www.youtube.com/watch?v=rJqr_vRX7jg)
+
+With code from [here](https://github.com/aaronr5tv/DonnieThornberryBot)
+
 ## Build
 To build, make sure that modules are enabled and run:
 ```
