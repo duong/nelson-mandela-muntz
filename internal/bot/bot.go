@@ -6,7 +6,6 @@ Listens for sound coming from other discord users and will respond with Nelson M
 package bot
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -17,9 +16,13 @@ import (
 
 var session *discordgo.Session
 var voiceConnection *discordgo.VoiceConnection
+var guildID string
 
-func Start(token string, channelID string, guildID string) {
+var audioFile string = "audio/nelson-ha-ha.m4a"
+
+func Start(token string, channelID string, gid string) {
 	log.Println("initialising bot...")
+	guildID = gid
 
 	var err error
 	session, err = discordgo.New("Bot " + token)
@@ -38,6 +41,7 @@ func Start(token string, channelID string, guildID string) {
 	}
 
 	voiceConnection, err = session.ChannelVoiceJoin(guildID, channelID, false, false)
+	voiceConnection.LogLevel = discordgo.LogDebug
 	log.Println("created voice connection")
 
 	if err != nil {
@@ -47,7 +51,16 @@ func Start(token string, channelID string, guildID string) {
 	// For detecting when other users are speaking:
 	log.Println("state enabled", session.StateEnabled)
 
-	listenAndPlay(voiceConnection)
+	log.Println("PlayAudioFile:", audioFile)
+
+	voiceConnection.AddHandler(func(vc *discordgo.VoiceConnection, vs *discordgo.VoiceSpeakingUpdate) {
+		log.Printf("user %s with ssrc %d is speaking: %t", vs.UserID, vs.SSRC, vs.Speaking)
+
+		vc.Speaking(true)
+		dgvoice.PlayAudioFile(vc, audioFile, make(chan bool))
+		vc.Speaking(false)
+
+	})
 
 	// Keep the program running until it has signal interrupt
 	defer session.Close()
@@ -55,35 +68,4 @@ func Start(token string, channelID string, guildID string) {
 	signal.Notify(sigs, os.Interrupt)
 	<-sigs
 	log.Println("Gracefully shutting down")
-}
-
-// Takes inbound audio and sends it right back out.
-func listenAndPlay(v *discordgo.VoiceConnection) {
-
-	log.Println("listen and play started")
-
-	recv := make(chan *discordgo.Packet, 2)
-	go dgvoice.ReceivePCM(v, recv)
-
-	send := make(chan []int16, 2)
-	go dgvoice.SendPCM(v, send)
-
-	v.Speaking(true)
-	defer v.Speaking(false)
-
-	audioFile := "audio/nelson-ha-ha.m4a"
-
-	for {
-		p, ok := <-recv
-		if !ok {
-			log.Println("stopping echo")
-			return
-		}
-		// fmt.Printf("%+v\n", *p)
-
-		// Start loop and attempt to play all files in the given folder
-		fmt.Println("PlayAudioFile:", audioFile)
-
-		dgvoice.PlayAudioFile(voiceConnection, audioFile, make(chan bool))
-	}
 }
